@@ -1,53 +1,81 @@
+/***************************************************************************************************
+ Class Name: TestDynamicSOQLStatement
+ Created Date:10/8/2015
+ Description: This test class performs test cases to check vf page for Dynamic Apex
+***************************************************************************************************/  
 @isTest
 private class TestDynamicSOQLStatement {
     
-    // Method to test the fields selected
-    static testMethod void initialPage() {
+    // Test method to  check all objects
+    static testMethod void retrivingAllObjects() {
         DynamicSOQLStatements contollerInstance = new DynamicSOQLStatements();
-        contollerInstance.selectObject = 'Account';
-        Integer sizeOffieldList = Schema.getGlobalDescribe().get(contollerInstance.selectObject).getDescribe().fields.getMap().keyset().size();
-        Integer fieldsListSize;
-         
-        Test.startTest();
-            contollerInstance.getFieldList();
-            fieldsListSize = contollerInstance.fieldSet.size();
-        Test.stopTest();
-        system.assertEquals(sizeOffieldList, fieldsListSize);
-    }
-    static testMethod void testQueryExecution() {
-        DynamicSOQLStatements contollerInstance = new DynamicSOQLStatements();
-        List<Account> accountTestList = new List<Account>();
-        for(Integer i = 0; i < 5; i++) {
-            Account accountInstance = new Account(Name = 'testAccount'+i,
-                                         Email_ID__c = i+'test'+i+'@account.com',
-                                         WebSite = 'http://www.webaccount.com');
-            accountTestList.add(accountInstance);   
-        }
-        insert accountTestList;
-        contollerInstance.selectObject = 'Account';
-        contollerInstance.selectedField.add('Name');
-        contollerInstance.selectedField.add('Id');
-        contollerInstance.orderOfOptions = 'ASC';
-        contollerInstance.showSelectedFieldList();
-        contollerInstance.queryList = 'test';
+        List<Schema.SObjectType> listAllObjects = Schema.getGlobalDescribe().Values();
+        List<SelectOption> listSelectedObject = new List<SelectOption>();
         
-        String queryList = 'FIND {test}  IN ALL FIELDS RETURNING  Account ( Name , Id  ORDER BY Name ASC ) LIMIT 500';
-        List<List<Sobject>> testResult = Search.Query(queryList);
-        Test.startTest();
-            contollerInstance.executeQuery();
-        Test.stopTest();
-        system.assertEquals(testResult.size(), contollerInstance.dynamicRecordsList.size());
+        for (Schema.SObjectType selectedObjectInstance : listAllObjects) {
+            listSelectedObject.add(new SelectOption(selectedObjectInstance.getDescribe().getName(),
+                                                selectedObjectInstance.getDescribe().getLabel()));
+        }
+        contollerInstance.getallObjectName();
+        system.assertEquals(listAllObjects.size(), listSelectedObject.size());
     }
-    static testMethod void testFieldsSelection() {
+    // Test method to check all fields
+    static testMethod void retrivingAllFields() {
         PageReference pageref = page.DynamicSOQLStatements;
         Test.setCurrentPage(pageRef);
         DynamicSOQLStatements contollerInstance = new DynamicSOQLStatements();
-        contollerInstance.selectObject='Account'; 
-        contollerInstance.selectedField.add('Name');
-        contollerInstance.selectedField.add('Id');
-        contollerInstance.selectedField.add('Email_ID__c');
-        contollerInstance.showselectedFieldList();
-        system.assertEquals(3,contollerInstance.selectedFieldList.size());
+        
+        contollerInstance.strObjectName = 'Account';
+        Integer sizeOffieldList = Schema.getGlobalDescribe().get(contollerInstance.strObjectName)
+                                    .getDescribe().fields.getMap().keyset().size();
+        contollerInstance.getobjectFieldsName();
+        Integer fieldsListSize = contollerInstance.listSelectedField.size();
+        system.assertEquals(sizeOffieldList, fieldsListSize);
     }
-    
+     // Test Method to check radio buttons 
+     static testMethod void checkForRadioButtons() {
+         DynamicSOQLStatements contollerInstance = new DynamicSOQLStatements();
+         List<SelectOption> strSelectSortOptions = contollerInstance.getradioOptions();
+         system.assertEquals(2,strSelectSortOptions.size());
+     }
+     // Test case to check order of records
+     static testMethod void checkOrderOfRecords() {
+         DynamicSOQLStatements contollerInstance = new DynamicSOQLStatements();
+         List<SelectOption> strSelectSortOptions = contollerInstance.getradioOptions();
+         system.assertEquals(Constants.strAscendingOrder,contollerInstance.strOrderBy);
+     }
+     // Test Method to check limits of records
+     static testMethod void orderOfRecords() {
+         DynamicSOQLStatements contollerInstance = new DynamicSOQLStatements();
+         List<SelectOption> strSelectSortOptions = contollerInstance.getlistNumber();
+         system.assertNotEquals(null,contollerInstance.strOrderBy);
+     }
+     // Test Method to check query which is formed
+     static testMethod void testShowQuery() {
+        PageReference pageref = page.DynamicSOQLStatements;
+        Test.setCurrentPage(pageRef);
+        DynamicSOQLStatements contollerInstance = new DynamicSOQLStatements();
+        String tempList = Constants.strQueryForTestClass;
+        contollerInstance.strObjectName = 'Account';
+        contollerInstance.listObjectField.add('Name');
+        contollerInstance.listObjectField.add('Id');
+        contollerInstance.strOrderBy = Constants.strAscendingOrder;
+        contollerInstance.intSelectedNumber = 500;
+        contollerInstance.displayQuery();
+        system.assertNotEquals(tempList,contollerInstance.strquery);
+     }
+     // Test Method to check query in descending order
+     static testMethod void testShowQuery1() {
+        PageReference pageref = page.DynamicSOQLStatements;
+        Test.setCurrentPage(pageRef);
+        DynamicSOQLStatements contollerInstance = new DynamicSOQLStatements();
+        String tempList = Constants.strQueryForTestClass;
+        contollerInstance.strObjectName = 'Account';
+        contollerInstance.listObjectField.add('Name');
+        contollerInstance.listObjectField.add('Id');
+        contollerInstance.strOrderBy = Constants.strDescendingOrder;
+        contollerInstance.intSelectedNumber = 500;
+        contollerInstance.displayQuery();
+        system.assertNotEquals(tempList,contollerInstance.strquery);
+     }
 }

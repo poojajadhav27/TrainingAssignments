@@ -12,11 +12,7 @@ public class TestStudentForm {
     static testMethod void testSaveRecordBulk() {
         
         List<Student__c> studList = new List<Student__c>();
-<<<<<<< HEAD
         for (integer i = 0; i < 20; i++) {
-=======
-         for (integer i = 0; i < 20; i++) {
->>>>>>> 35da6db775fa3db33f698ebd618b5131d9cc0bb1
             Student__c studentInstance = new Student__c(Student_Name__c = 'test'+i);
             studList.add(studentInstance);
          }
@@ -37,7 +33,7 @@ public class TestStudentForm {
                        WHERE Student_Name__c LIKE 'test%'];
         System.assertEquals(20,studentList.size());
     }
-    
+    //Test method to save record
     static testMethod void testSaveRecordMessage() {
         
         List<Student__c> studList = new List<Student__c>();

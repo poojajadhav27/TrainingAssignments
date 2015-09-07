@@ -5,7 +5,6 @@
 *************************************************************************/  
 @isTest
 public class TestAccountPage_VF1 {
-<<<<<<< HEAD
 
    
     // Test Method for account page
@@ -195,108 +194,4 @@ public class TestAccountPage_VF1 {
          List<String> alphaString = Controller.getSearchAlpabet();
          System.assertEquals(26,alphaString.size());
      }
-}   
-=======
-    
-    // method to check redirection from account page to contact page
-    static testMethod void testAccountRedirectToContact() {
-        List<Account> accountList = new List<Account>();
-        Account accountInstance = new Account();
-        accountList=TestDatafactory.accountData(10);
-        insert accountList; 
-        
-        //Test to Display all records of account
-        PageReference accPage = page.showAccountList;
-        Test.setCurrentPage(accPage);
-        showAccountListController Controller = new showAccountListController();
-        Controller.getlistacc();
-        system.assertequals(20,Controller.listacc.size());
-        
-        //Test to search for particular account
-        Controller.accountName = 'TestPage2';
-        Controller.accountName='Tes';
-        Controller.SearchAccount();
-        Controller.getlistacc();
-        system.assertequals(20,Controller.listacc.size());
-    }
-        
-    static testMethod void testSearchStringAccount() {
-        List<Account> accountList = new List<Account>();
-        Account accountInstance = new Account();
-        accountList=TestDatafactory.accountData(10);
-        insert accountList; 
-        
-         PageReference accPage = page.showAccountList;
-        Test.setCurrentPage(accPage);
-        
-        showAccountListController Controller = new showAccountListController();
-        //Test to handle if user enter less than 3 characters to search
-        Controller.refresh();
-        Controller.accountName = 'T'; 
-        Controller.SearchAccount(); 
-        ApexPages.Message[] msgs=ApexPages.getMessages();
-        system.debug('pagesv messages ----------------'+ msgs);
-        system.assertEquals(1,msgs.Size());  
-    } 
-     
-    
-    //method for associated contact of account
-    static testMethod void associatedContacts() {
-        PageReference accPage = page.showAccountList;
-        Test.setCurrentPage(accPage);
-        
-        //Test to display associate contact of account
-        List<Account> accountList = new List<Account>();
-        Account accountInstance = new Account();
-        accountList=TestDatafactory.accountData(10);
-        insert accountList; 
-       
-        List<Contact> contactList = new List<Contact>();
-        for(integer i=0;i<10;i++) {
-            contactList.add(new Contact (LastName='ContactPageTest'+i,
-            AccountId=accountInstance.Id,Email='pooja'+ i +'@yahoo.com'));
-        }
-        insert contactList; 
-         
-        system.debug('contactInstance : ' + contactList);
-        
-        showAccountListController Controller = new showAccountListController(); 
-        accPage.getParameters().put('Accountid',accountInstance.Id);
-        PageReference testReference = Controller.Redirect();
-        
-        system.debug('testReference :'+ testReference);
-        Test.setCurrentPage(testReference);
-       
-        system.debug('AcoountId :'+ testReference.getParameters().get('aid'));
-        
-        system.assertEquals('/apex/showassiciatecontacts',Controller.Redirect().getUrl());
-        system.assertEquals(accountInstance.Id,testReference.getParameters().get('aid'));
-        
-        system.debug('**********************geturl****************************'+testReference);
-        
-        //Test to get the size of contact       
-        Controller.getcontactList();
-        system.debug('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'+Controller.contactList.Size());
-        system.assertEquals(10,Controller.contactList.Size());   
-        
-        //Test to display the contact of that alphabate 
-        Controller.SearchVariable='C';  
-        Controller.display();
-        system.debug('aabbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb'+Controller.contactList.Size());
-        system.assertEquals(10,Controller.contactList.size()); 
-        
-        //Test to clear the textbox
-        Controller.refresh();
-       // system.debug('******Controller.searchStringAccount********'+Controller.searchStringAccount);
-        system.assertequals(' ',Controller.accountName);  
-        /*showAccountListController.DeleteMultipleRecords(contactList[0].Id);
-        
-        contactList.clear();  
-        contactList=[SELECT Id,LastName,AccountId,Email
-                         FROM Contact   
-                         Where LastName  
-                         like 'ContactPageTest%'];
-        system.assertequals(9,contactList.size());*/
-     }
 }
->>>>>>> 35da6db775fa3db33f698ebd618b5131d9cc0bb1

@@ -5,140 +5,156 @@ Description : This is controller where Dynamic SOQL queries are used
               to interact with objects and fields  
 ***************************************************************************************************/
 public with sharing class DynamicSOQLStatements {
-    
-    public String selectObject{get;set;}
-    public List<String> selectField{get;set;}
-    public String selectRecord{get;set;}
-    public List<SelectOption> selct{get;set;}
-    public String alpha{get;set;}
-    
-    public List<String> selectedField{get;set;}
-    public List<sObject> dynamicRecordsList{get; set;}
-    public List<String> fieldSet;
-    public List<SelectOption> objectList{get;set;}
-    public List<SelectOption> fieldList{get;set;}
-    public List<SelectOption> recordList{get;set;}
-    public List<SelectOption> selectedFieldList{get;set;}
-    //public list<SelectOption> queryList{get;set;}
- 
-    public String orderOfOptions{get;set;}
-    public String fieldString{get;set;}
-    public String concatenatedstring{get;set;}
 
-    //Map to get all the objects where name is the key and the value is the fields of the related object
-    public Map<String, Schema.SObjectType> mapToGetObjects = new map<String, Schema.SObjectType>();
-    Map<String, Schema.SObjectField> mapToGetFields;
-    
-    public List<String> objectSet{get;set;}
-    public List<String> selectedFieldSet{get;set;}
-    public String queryList{get;set;}
-    public Boolean blrenderSection{get;set;}
-    //public Boolean blrenderSection2{get;set;} 
-    public Boolean blRend{get;set;}
-    public set<string> setOfSelectedFields{get; set;}
- 
+    public List<SelectOption> listSelectedObject {get;set;}
+    public List<SelectOption> listSelectedField {get;set;}
+    public String strObjectName {get;set;}
+    public List<String> listObjectField {get;set;}
+    public String strOrderBy {get;set;}
+    public Integer intSelectedNumber {get;set;}
+    public String strquery {get;set;}
+    public Integer intCount = 0;     
+    public Integer intIndex = 0;
+    public Integer blockSize = 100;
+    public String strNewQuery;
+    public String executeQuery {get; set;}
+    public List<SObject> listQueryResult {get;set;}
+    public List<SelectOption> listSelectSortOptions; 
+    public List<SelectOption> listLimitOfRecords;
+
+    public Boolean blHideFields{get; set;}
+    public Boolean blHideOrder{get;set;}
+    public Boolean blHideQuery{get; set;}
+    public Boolean blHideLimit{get; set;}
+    public Boolean blHideResult{get; set;}
+
+    // Constructor for the class
     public DynamicSOQLStatements() {
-        getObjectList();
-        selectedFieldList = new List<selectOption>();
-        selectField = new List<String>();
-        dynamicRecordsList = new  List<sObject>();
-        recordList  = new List<selectOption>();
-        selectedFieldSet = new List<String>();
-        blRend=false;
-        setOfSelectedFields = new set<string>();
+        strOrderBy = 'Ascending';
+        intSelectedNumber = 500;
+        strquery = '';
+        listObjectField = new List<String>();
+        blHideFields = false;
+        blHideOrder = false;
+        blHideQuery = false;
+        blHideLimit = false;
+        blHideResult = false;
+       
     }
-    // Method to get the list of objects
-    public List<SelectOption> getObjectList() {
-        objectList = new List<SelectOption>();
+    
+    // Method to display all the objects
+    public List<SelectOption> getallObjectName() {
         
-        //To get a map of all the sObject names with the values
-        mapToGetObjects = Schema.getGlobalDescribe();
-        System.debug('11111111111111111'+mapToGetObjects);
-        //To get all the keys (names of sObjects) in the objectSet
-        objectSet = new List<String>(mapToGetObjects.keySet());
-        objectSet.sort();
-        System.debug('22222222222222222'+objectSet);
-        //To get the list of objects
-        for(String obj : objectSet) {
-            //getAll.Values();
-            objectList.add(new SelectOption(obj,obj)); 
+        List<SelectOption> listSelectedObject = new List<SelectOption>();
+        Map<String,Schema.SObjectType> mapGlobalDescribe = Schema.getGlobalDescribe();
+        if(mapGlobalDescribe != null) {
+            for(String objType : mapGlobalDescribe.keySet()){   
+                // Retriving only those objects which are queryable         
+                if(mapGlobalDescribe.get(objType).getDescribe().isQueryable()) {       
+                    listSelectedObject.add(new selectOption(objType,objType));
+                }
+            }
         }
-        System.debug('^^^^^^^^^^^^^^^^^^^^'+objectList);
-        return objectList;
+       
+        if(!listSelectedObject.isEmpty()) { 
+            // Sorting the list of objects
+            listSelectedObject.sort();
+        }
+        System.debug('111111111111111' + listSelectedObject);
+        System.debug('222222222222222' + strObjectName);
+
+        return listSelectedObject;
     }
-    // Method to get the list of fields of the objects
-    public void getFieldList(){
-        fieldList = new List<SelectOption>();
-        fieldList.clear();
-        System.debug('------------------------------------------------'+fieldList);
-        blrenderSection = true;
-        //To get a map of all the sObject names with the values
-        mapToGetObjects = Schema.getGlobalDescribe();
-        System.debug('3333333333333333'+mapToGetObjects);
-        //To select a object to show the related fields of the object
-        System.debug('4444444444444444'+selectObject);
-  
-        //Map to get the fields where the API name of the fields is the key and
-        //the labels of the field is the value
-        mapToGetFields = mapToGetObjects.get(selectObject).getDescribe().fields.getMap(); 
-        System.debug('55555555555555555'+mapToGetFields); 
-        //To get all the keys(field labels)
-        //List<String> fieldSet = new  List<String>();
-        fieldSet = new List<String>(mapToGetFields.keySet()); 
-        fieldSet.sort();
-        System.debug('666666666666666666666'+fieldSet);  
-        //To return the list of fields 
-        for(String fieldInstance : fieldSet) {
-            fieldList.add(new SelectOption(fieldInstance,fieldInstance));
+ 
+    // Method to display Fields of objects
+    public void getobjectFieldsName() {
+        listSelectedField = new List<SelectOption>();
+        listObjectField = new List<String>();
+        blHideFields = true;
+        blHideOrder = false;
+        blHideQuery = true;
+        blHideOrder = true;
+        blHideLimit = true;
+        blHideResult = true;
+               
+        Map<String, Schema.SObjectType> allObjectMap = Schema.getGlobalDescribe();
+        Schema.SObjectType objectSchema = allObjectMap.get(strObjectName);
+         
+        Map<String, Schema.SObjectField> fieldMap = objectSchema.getDescribe().fields.getMap();
+        if(fieldMap != null) {
+            for (String fieldName : fieldMap.keySet()) { 
+                if((fieldMap.get(fieldName).getDescribe().isSortable())&&(fieldMap.get(fieldName).getDescribe().isFilterable())) 
+                listSelectedField.add(new SelectOption(fieldName,fieldName));
+            }
         }
+        if(!listSelectedField.isEmpty()) 
+            // Sorting the list of fields 
+            listSelectedField.sort();
+        System.debug('3333333333333' + listSelectedField);
     }
-    // Method to show the list of selected field names
-    public void showSelectedFieldList(){
-        //Only one field is selected   
-        System.debug('666666666666666666'+selectedFieldSet);    
-        for(String fInstance : selectField) {
-            selectedFieldList.add(new selectOption (fInstance,fInstance));
-        }
-        System.debug('777777777777777777'+selectedFieldList);
-        for(String fieldsInstance : selectField) {
-            setOfSelectedFields.add(fieldsInstance);
-            selectedFieldSet.add(fieldsInstance);
-        }
-        System.debug('!!!!!!!!!!!!!!!!!!!!!'+selectedFieldSet);
+
+    // For sorting records on the  page 
+    public List<SelectOption> getradioOptions() {
+        
+        listSelectSortOptions = new List<SelectOption>();
+        // Selecting Radio button for order of records
+        listSelectSortOptions.add(new SelectOption(Constants.strAscendingOrder,
+                                                    Constants.strAscendingOrder));
+        listSelectSortOptions.add(new SelectOption(Constants.strDescendingOrder,
+                                                    Constants.strDescendingOrder));
+        return listSelectSortOptions;
     } 
-    // Method to unselect the fields if not needed
-    public void undoSelectedFields() {
-        for(String toDelete:selectedField) {
-            setOfSelectedFields.remove(toDelete);
+
+    // Method to display limits of records 
+    public List<SelectOption> getlistNumber() {
+        listLimitOfRecords = new List<SelectOption>();
+        // Selecting limits for records
+        listLimitOfRecords.add(new SelectOption(Constants.strLimit500,Constants.strLimit500));
+        listLimitOfRecords.add(new SelectOption(Constants.strLimit1000,Constants.strLimit1000));
+        listLimitOfRecords.add(new SelectOption(Constants.strLimit5000,Constants.strLimit5000));
+        listLimitOfRecords.add(new SelectOption(Constants.strLimit50000,Constants.strLimit50000));
+        return listLimitOfRecords;
+    } 
+    
+    // Method to display query and result of query
+    public void displayQuery() {
+        blHideLimit = false;
+        
+        strNewQuery = Constants.strSelectQuery + strObjectName;
+        intCount = database.countQuery(strNewQuery);
+        System.debug('********count*******' + intCount);
+        if (strOrderBy == Constants.strAscendingOrder) {
+            strOrderBy = Constants.strAscending;
+        } else {
+            strOrderBy = ' DESC ';
         }
-        selectedFieldList.clear();
-        for(String fInstance : setOfSelectedFields) {
-            selectedFieldList.add(new selectOption (fInstance,fInstance));
+        try{
+           executeQuery = Constants.strSelect + listObjectField + Constants.strFrom + strObjectName
+                           + Constants.strOrderRecordsBy + listObjectField[0] + strOrderBy +
+                           Constants.strRecordLimit + blockSize +Constants.strRecordOffset+ intIndex;
+            
+            strquery = Constants.strSelect + listObjectField + Constants.strFrom + strObjectName +
+                       Constants.strOrderRecordsBy + listObjectField[0] + strOrderBy +
+                       Constants.strRecordLimit + intSelectedNumber;
+            
+            System.debug('---------------->' + strquery);
+            if(executeQuery != null) {
+                executeQuery = executeQuery.replace(Constants.strOpeningBrackets,' ');
+                executeQuery = executeQuery.replace(Constants.strClosingBrackets,' ');
+            }
+            if(String.isNotBlank(strquery)) {
+                strquery = strquery.replace(Constants.strOpeningBrackets,' ');
+                strquery = strquery.replace(Constants.strClosingBrackets,' ');
+            }
+            System.debug('--------------->>' + strquery);
+            
+            // Executing query
+            listQueryResult = Database.query(executeQuery);
+            System.debug('queryResult**********' + listQueryResult);
         }
-        System.debug('7777777777777777777'+selectedFieldList);
+        catch (Exception error) {
+            ApexPages.addmessage(new ApexPages.message(ApexPages.severity.ERROR,
+                                 System.Label.ErrorMsgForDynamicApex));
+        }
     }
-    //Method to show the query
-    public void showQuery() {
-        blRend=true;
-        System.debug('forming query-->');
-        if (orderOfOptions == 'Ascending') {
-            orderOfOptions = ' ASC';
-        }
-        if (orderOfOptions == 'Descending') {
-            orderOfOptions = ' DSEC';
-        }
-        queryList = 'SELECT' + selectedFieldSet + 'FROM ' + selectObject + ' ORDER BY ';
-        queryList += +selectedFieldSet[0]+ orderOfOptions+ ' LIMIT ' + selectRecord;
-        System.debug('88888888888888888888888'+queryList);
-        //Replace unwanted characters 
-        queryList = queryList.replace('(',' ');
-        queryList = queryList.replace(')',' ');
-        System.debug('99999999999999999999999'+queryList);
-        //List of query 
-      } 
-     public void executeQuery(){
-        dynamicRecordsList = new List<sObject>();
-        dynamicRecordsList = Database.query(queryList);
-        System.debug('*************'+dynamicRecordsList);
-     }
 }

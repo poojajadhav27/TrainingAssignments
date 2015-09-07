@@ -17,16 +17,12 @@ public class Avoid_duplication_ofContact_TestClass {
         //getting list from TestDatafactory
         conList = TestDatafactory.contactData(40);
         //inserting a list
-<<<<<<< HEAD
         if(!conList.isEmpty()) {
             insert conList;
         }
         else {
             System.debug('No recordss');
         }   
-=======
-        insert conList;   
->>>>>>> 35da6db775fa3db33f698ebd618b5131d9cc0bb1
                  
         for(Contact conInstance: conList) {
             //creating new instance for duplication
@@ -54,16 +50,12 @@ public class Avoid_duplication_ofContact_TestClass {
         //getting list from TestDatafactory
         conList=TestDatafactory.contactData(40);
         //inserting a list
-<<<<<<< HEAD
         if(!conList.isEmpty()) {
             insert conList;
         }
         else {
             System.debug('No record..');
         }   
-=======
-        insert conList;   
->>>>>>> 35da6db775fa3db33f698ebd618b5131d9cc0bb1
                
         for(Contact conInstance: conList) {
             //creating new instance for duplication

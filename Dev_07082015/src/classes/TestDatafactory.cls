@@ -137,11 +137,7 @@ public class TestDatafactory {
                 City__c cityInstance = new City__c(Name = 'Pune'+i);
                 cityList.add(cityInstance);
             }
-<<<<<<< HEAD
        return cityList;   
-=======
-        return cityList;  
->>>>>>> 35da6db775fa3db33f698ebd618b5131d9cc0bb1
     }    
 //****************************************DATA FOR OPPORTUNITY************************************** 
 public static list<Opportunity> oppData(Integer num) {
@@ -159,14 +155,9 @@ public static list<Opportunity> oppData(Integer num) {
 public static List<Lead> leadData(Integer num) {
         List<Lead> leadList = new List<Lead>();         
         for(Integer i = 0; i < num; i++) {
-<<<<<<< HEAD
             Lead leadInstance = new Lead(FirstName='TestFirst',LastName = 'TestLast' + i,
                                           Status = 'Open - Not Contacted',Company = 'Eternus',
                                           Email='p@eternussolutions.com',Phone='11111112');
-=======
-            Lead leadInstance = new Lead(LastName = 'TestContact' + i,Company = 'Eternus',
-                                    Status = 'Open - Not Contacted',Email='p@eternussolutions.com');
->>>>>>> 35da6db775fa3db33f698ebd618b5131d9cc0bb1
             leadList.add(leadInstance );
         }
         //insert contactList;
@@ -181,5 +172,44 @@ public static List<Lead> leadDiffData(Integer num) {
         }
         //insert contactList;
         return leadList;
+    }
+//****************************************DATA FOR EMAIL**************************************
+public static List<Email__c> emailData(Integer num) {
+    List<Contact> lstcon=new List<Contact>();
+    
+    List<Email__c> emailList = new List<Email__c>();         
+        for(Integer i = 0; i < num; i++) {
+            Email__c emailInstance = new Email__c(Name = 'pooja@gmail.com'+i,
+                                                  Contact__c = lstcon[0].Id);
+            emailList.add(emailInstance);
+        }
+        //insert contactList;
+        return emailList;
+    }
+//****************************************DATA FOR QUERY**************************************
+public static List<Query__c> queryData(Integer num) {
+    List<Email__c> emailList = new List<Email__c>(); 
+    List<Query__c> queList = new List<Query__c>();         
+        for(Integer i = 0; i < num; i++) {
+            Query__c queInstance = new Query__c(Query_Of_User__c = 'pune'+i,
+                                                EmailandContact__c = emailList[0].Id);
+            queList.add(queInstance);
+        }
+        //insert contactList;
+        return queList;
+    }
+//****************************************DATA FOR RESPONSE**************************************
+public static List<Response__c> responseData(Integer num) {
+    List<Query__c> queList = new List<Query__c>(); 
+    List<Response__c> resList = new List<Response__c>(); 
+        for(Integer i = 0; i < num; i++) {
+            Response__c resInstance = new Response__c(Title_Of_query__c = 'pune'+i,
+                                                      Link_For_Query__c = 'www.google.com'+i,
+                                                      Description__c = 'aaaaaa',
+                                                      QueryAndResponse__c = queList[0].Id);
+            resList.add(resInstance);
+        }
+        //insert contactList;
+        return resList; 
     }
 }

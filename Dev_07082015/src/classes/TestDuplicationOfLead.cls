@@ -11,8 +11,9 @@ public class TestDuplicationOfLead {
     //Test method to which checks duplication of Lead
     static testMethod void avoidDuplicationOfLead() {
         
-        leadList = TestDatafactory.leadData(5);         
-        insert leadList;
+        leadList = TestDatafactory.leadData(5); 
+        if(!leadList.isEmpty())        
+            insert leadList;
         
         Test.startTest();   
             avoidDuplicationOfLead deleteInstance = new avoidDuplicationOfLead();
@@ -20,7 +21,8 @@ public class TestDuplicationOfLead {
         Test.stopTest();
         
         leadDupliList = TestDatafactory.leadData(1);
-        insert leadDupliList;
+        if(!leadDupliList.isEmpty())
+            insert leadDupliList;
         
         //Getting list of leads with same email id
         List<Lead> getLeadList = new List<Lead>();
@@ -40,7 +42,8 @@ public class TestDuplicationOfLead {
         Test.stopTest();
         
         leadDupliList=TestDatafactory.leadDiffData(5);
-        insert leadDupliList;
+        if(!leadDupliList.isEmpty())
+            insert leadDupliList;
         
         System.assertEquals(5,leadDupliList.size());
     }
